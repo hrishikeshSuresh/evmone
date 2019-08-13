@@ -17,7 +17,7 @@ Let's start by defining some basic and universal instructions' parameters.
 2. Stack height requirement.
 
    This is the minimum stack height (number of items on the stack) 
-   required for the instruction execution.
+   required prior to the instruction execution.
    
 3. Stack height change.
 
@@ -46,7 +46,7 @@ in wasm or "subroutine" in subroutine-threaded interpreters.
 
 In EVM there are simple rules to identify basic block boundaries:
 
-1. The following instructions _end_ a basic block:
+1. A basic block _ends_ after the following instructions:
    - `JUMP`,
    - `JUMPI`,
    - `STOP`,
@@ -55,20 +55,20 @@ In EVM there are simple rules to identify basic block boundaries:
    - `SELFDESTRUCT`,
    - an instruction directly preceding `JUMPDEST`.
 
-2. The following instructions _start_ a basic block:
+2. A basic block _starts_ right before the following instructions:
    - `JUMPDEST`,
    - the first instruction in the code,
    - an instruction directly after an instruction that has ended previous basic block.
 
-
+A basic block is a shortest sequence of instructions such that a basic block starts before the first instruction and ends after the last.
 ## Algorithm
 
 The algorithm for calculating gas and checking stack requirements precomputes
-the values for basic blocks and during execution the checks are done once per block.
+the values for basic blocks and during execution the checks are done only once per block.
 
 ### Collecting requirements for basic blocks
 
-For a basic block we need to collect following information:
+For a basic block we need to collect the following information:
 
 - total base gas required by instructions,
 - the stack height required (the minimum stack height needed to execute 
@@ -131,7 +131,7 @@ def check_basic_block_requirements(state, basic_block):
 
 ### EVM may terminate earlier
 
-Because requirements for a whole basic blocks are checked up front, the instructions
+Because requirements for a whole basic block are checked up front, the instructions
 that have observable external effects might not be executed although they would be
 executed if the gas counting would have been done per instruction.
 This is not a consensus issue because the execution terminates with a "hard" exception
