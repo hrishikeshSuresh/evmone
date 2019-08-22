@@ -98,7 +98,8 @@ code_analysis analyze(evmc_revision rev, const uint8_t* code, size_t code_size) 
             // TODO: Consier the same endianness-specific loop as in ANY_LARGE_PUSH case.
             while (code_pos < push_end && code_pos < code_end)
                 *insert_pos++ = *code_pos++;
-            instr.arg.small_push_value = load64be(value_bytes);
+
+            analysis.instrs.emplace_back(nullptr).arg.small_push_value = load64be(value_bytes);
             break;
         }
 
