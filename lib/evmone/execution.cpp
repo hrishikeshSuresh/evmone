@@ -8,8 +8,8 @@
 
 namespace evmone
 {
-evmc_result execute(evmc_instance*, evmc_context* ctx, evmc_revision rev, const evmc_message* msg,
-    const uint8_t* code, size_t code_size) noexcept
+evmc_result execute(evmc_instance* /*unused*/, evmc_context* ctx, evmc_revision rev,
+    const evmc_message* msg, const uint8_t* code, size_t code_size) noexcept
 {
     auto analysis = analyze(rev, code, code_size);
 
@@ -23,7 +23,7 @@ evmc_result execute(evmc_instance*, evmc_context* ctx, evmc_revision rev, const 
     state->rev = rev;
 
     const instr_info* instr = &state->analysis->instrs[0];
-    while (instr)
+    while (instr != nullptr)
         instr = instr->fn(instr, *state);
 
     evmc_result result{};
@@ -36,11 +36,13 @@ evmc_result execute(evmc_instance*, evmc_context* ctx, evmc_revision rev, const 
     if (state->output_size > 0)
     {
         result.output_size = state->output_size;
+        // NOLINTNEXTLINE(cppcoreguidelines-no-malloc)
         auto output_data = static_cast<uint8_t*>(std::malloc(result.output_size));
         std::memcpy(output_data, &state->memory[state->output_offset], result.output_size);
         result.output_data = output_data;
         result.release = [](const evmc_result* r) noexcept
         {
+            // NOLINTNEXTLINE(cppcoreguidelines-no-malloc, cppcoreguidelines-pro-type-const-cast)
             std::free(const_cast<uint8_t*>(r->output_data));
         };
     }

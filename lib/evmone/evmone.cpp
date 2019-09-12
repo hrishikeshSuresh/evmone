@@ -12,8 +12,8 @@
 extern "C" {
 EVMC_EXPORT evmc_instance* evmc_create_evmone() noexcept
 {
-    static constexpr auto destroy = [](evmc_instance*) noexcept {};
-    static constexpr auto get_capabilities = [](evmc_instance*) noexcept
+    static constexpr auto destroy = [](evmc_instance* /*unused*/) noexcept {};
+    static constexpr auto get_capabilities = [](evmc_instance* /*unused*/) noexcept
     {
         return evmc_capabilities_flagset{EVMC_CAPABILITY_EVM1};
     };

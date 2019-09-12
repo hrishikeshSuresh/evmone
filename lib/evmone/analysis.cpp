@@ -76,6 +76,9 @@ code_analysis analyze(evmc_revision rev, const uint8_t* code, size_t code_size) 
         bool is_terminator = false;  // A flag whenever this is a block terminating instruction.
         switch (opcode)
         {
+        default:
+            break;
+
         case OP_JUMP:
         case OP_JUMPI:
         case OP_STOP:
@@ -87,7 +90,7 @@ code_analysis analyze(evmc_revision rev, const uint8_t* code, size_t code_size) 
 
         case ANY_SMALL_PUSH:
         {
-            const auto push_size = size_t(opcode - OP_PUSH1 + 1);
+            const auto push_size = size_t(opcode - OP_PUSH1) + 1;
             const auto push_end = code_pos + push_size;
 
             uint8_t value_bytes[8]{};
@@ -97,18 +100,17 @@ code_analysis analyze(evmc_revision rev, const uint8_t* code, size_t code_size) 
             while (code_pos < push_end && code_pos < code_end)
                 *insert_pos++ = *code_pos++;
 
-            analysis.instrs.emplace_back().small_push_value = load64be(value_bytes);
+            analysis.instrs.emplace_back().small_push_value = load64be(&value_bytes[0]);
             break;
         }
 
         case ANY_LARGE_PUSH:
         {
-            const auto push_size = size_t(opcode - OP_PUSH1 + 1);
+            const auto push_size = size_t(opcode - OP_PUSH1) + 1;
             const auto push_end = code_pos + push_size;
 
             auto& push_value = analysis.push_values.emplace_back();
-            // TODO: Add as_bytes() helper to intx.
-            const auto push_value_bytes = reinterpret_cast<uint8_t*>(intx::as_words(push_value));
+            const auto push_value_bytes = intx::as_bytes(push_value);
             auto insert_pos = &push_value_bytes[push_size - 1];
 
             // Copy bytes to the deticated storage in the order to match native endianness.
