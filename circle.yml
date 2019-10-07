@@ -159,6 +159,29 @@ jobs:
           command: |
             codecov --required --gcov-exec "$GCOV" --gcov-root ~/build
 
+  build-gcc-32bit:
+    docker:
+      - image: ethereum/cpp-build-env:12-base
+    environment:
+      CMAKE_OPTIONS: -DTOOLCHAIN=cxx11-32bit
+    steps:
+      - run:
+          name: "Install GCC 32-bit"
+          command: sudo apt -q update && sudo apt -qy install g++-multilib
+      - build
+      - test
+
+  build-gcc-32bit:
+    docker:
+      - image: ethereum/cpp-build-env:12-base
+    environment:
+      CMAKE_OPTIONS: -DTOOLCHAIN=cxx11-32bit
+    steps:
+      - run:
+          name: "Install GCC 32-bit"
+          command: sudo apt -q update && sudo apt -qy install g++-multilib
+      - build_and_test
+
   clang-latest-ubsan:
     executor: linux
     environment:
